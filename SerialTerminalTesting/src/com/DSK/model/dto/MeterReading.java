@@ -7,12 +7,13 @@ public class MeterReading {
 	private int deviceId; // 검침 장치 아이디
 	private String addressMap; // 검침 항목 시작 주소
 	private String readingName; // 검침 항목 이름
-	private long readingValue; // 검침 결과 값
+	private String readingValue; // 검침 결과 값
 	private String readingTime; // 검침 수행 시간
 	private String unit; // 단위
+	private String type; // 통신 종류 구분
 
-	public MeterReading(int readingId, int deviceId, String addressMap, String readingName, long readingValue,
-			String readingTime, String unit) {
+	public MeterReading(int readingId, int deviceId, String addressMap, String readingName, String readingValue,
+			String readingTime, String unit, String type) {
 		super();
 		this.readingId = readingId;
 		this.deviceId = deviceId;
@@ -21,6 +22,7 @@ public class MeterReading {
 		this.readingValue = readingValue;
 		this.readingTime = readingTime;
 		this.unit = unit;
+		this.type = type;
 	}
 
 	public String getUnit() {
@@ -31,6 +33,14 @@ public class MeterReading {
 		this.unit = unit;
 	}
 
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
 	public String getReadingName() {
 		return readingName;
 	}
@@ -39,7 +49,7 @@ public class MeterReading {
 		this.readingName = readingName;
 	}
 
-	public void setReadingValue(long readingValue) {
+	public void setReadingValue(String readingValue) {
 		this.readingValue = readingValue;
 	}
 
@@ -67,12 +77,8 @@ public class MeterReading {
 		this.addressMap = addressMap;
 	}
 
-	public long getReadingValue() {
+	public String getReadingValue() {
 		return readingValue;
-	}
-
-	public void setReadingValue(int readingValue) {
-		this.readingValue = readingValue;
 	}
 
 	public String getReadingTime() {

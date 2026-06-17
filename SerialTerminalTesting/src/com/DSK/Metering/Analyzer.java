@@ -42,9 +42,10 @@ public class Analyzer {
 					));
 		}
 		// AI 프롬프트 작성
-		String prompt = "너는 전력 데이터 분석 전문가야. 아래 제공하는 전력 검침 데이터를 보고, " + "1) 시간 흐름에 따른 데이터 수치 변화 추이, "
-				+ "2) 수치들 간의 특별한 관계나 이상 징후가 보인다면 요약해줘.\n그리고, 해당 내용 정리해서 줄때 가식성 좋게 **이런거 넣지말고 번호같은거 넣어서 만들어줘\n"
-				+ "[검침 데이터 목록]\n" + dataSummary.toString();
+		String prompt = "너는 전력 데이터 분석 전문가야. 아래 제공하는 전력 검침 데이터를 보고, "
+		+ "1) 시간 흐름에 따른 데이터 수치 변화 추이, "
+		+ "2) 수치들 간의 특별한 관계나 이상 징후가 보인다면 요약해줘.\n그리고, 해당 내용 정리해서 줄때 가식성 좋게 **이런거 넣지말고 번호같은거 넣어서 만들어줘\n"
+		+ "[검침 데이터 목록]\n" + dataSummary.toString();
 
 		// JSON 형태로 포맷팅 및 Gemini 전송 파트 (아래는 기존 코드와 완전히 동일)
 		try {
@@ -58,7 +59,6 @@ public class Analyzer {
 
 			String jsonPayload = mapper.writeValueAsString(rootNode);
 
-			System.out.println("구글 Gemini AI에게 분석 요청을 보내는 중...");
 			HttpClient client = HttpClient.newHttpClient();
 			HttpRequest request = HttpRequest.newBuilder().uri(URI.create(GEMINI_URL))
 					.header("Content-Type", "application/json").POST(HttpRequest.BodyPublishers.ofString(jsonPayload))

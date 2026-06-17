@@ -1,4 +1,4 @@
-package com.DSK.serial;
+package com.DSK.serial.converter;
 
 import java.nio.charset.Charset;
 
@@ -12,13 +12,16 @@ public class ProtocolConverter {
 		return new String(buffer, 0, length, Charset.forName("MS949"));
 	}
 
-	public static byte[] convertHexToBytes(String hexText) throws NumberFormatException {
-		String[] tokens = hexText.trim().split("\\s+");
-		byte[] bytes = new byte[tokens.length];
+	public static byte[] convertHexToBytes(String hexText) {
+		hexText = hexText.replaceAll("\\s+", "");
 
-		for (int i = 0; i < tokens.length; i++) {
-			int parsedInt = Integer.parseInt(tokens[i], 16);
-			bytes[i] = (byte) parsedInt;
+		if (hexText.length() % 2 != 0) {
+			throw new IllegalArgumentException("HEX 길이는 짝수여야 합니다.");
+		}
+		byte[] bytes = new byte[hexText.length() / 2];
+
+		for (int i = 0; i < bytes.length; i++) {
+			bytes[i] = (byte) Integer.parseInt(hexText.substring(i * 2, i * 2 + 2), 16);
 		}
 		return bytes;
 	}

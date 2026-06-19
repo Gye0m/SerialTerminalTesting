@@ -1,7 +1,6 @@
 package com.DSK.model.dto.common;
 
-import com.DSK.serial.converter.DataType;
-import com.DSK.serial.converter.EndianType;
+import com.DSK.serial.constant.*;
 
 public class MeterInfo {
 

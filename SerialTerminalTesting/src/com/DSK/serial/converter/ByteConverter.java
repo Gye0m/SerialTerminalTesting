@@ -3,6 +3,9 @@ package com.DSK.serial.converter;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import com.DSK.serial.constant.DataType;
+import com.DSK.serial.constant.EndianType;
+
 public class ByteConverter {
 
     private ByteConverter() {
@@ -50,7 +53,7 @@ public class ByteConverter {
         }
     }
 
-    public static int getDataSize(DataType dataType) {
+    public static int getDataSize(DataType dataType) {	
 
         switch (dataType) {
 

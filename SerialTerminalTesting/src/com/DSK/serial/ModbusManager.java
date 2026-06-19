@@ -19,16 +19,16 @@ import com.DSK.model.dto.MeterReading;
 import com.DSK.model.dto.addressMap.Omni;
 import com.DSK.model.dto.common.MeterInfo;
 import com.DSK.serial.converter.ByteConverter;
-import com.DSK.serial.converter.DataType;
-import com.DSK.serial.converter.EndianType;
+import com.DSK.serial.constant.DataType;
+import com.DSK.serial.constant.EndianType;
 import com.DSK.serial.converter.ProtocolConverter;
-import com.DSK.ui.HexaTerminal;
+import com.DSK.ui.Modbus.ModbusTerminal;
 import com.fazecast.jSerialComm.SerialPort;
 import com.fazecast.jSerialComm.SerialPortDataListener;
 import com.fazecast.jSerialComm.SerialPortEvent;
 
-public class HexaManager {
-	private static final Logger log = LoggerFactory.getLogger(HexaManager.class);
+public class ModbusManager {
+	private static final Logger log = LoggerFactory.getLogger(ModbusManager.class);
 
 	// 예외처리 -> 데이터 및 패킷 조립 제한 시간 할당
 	private final ScheduledExecutorService timeoutScheduler = Executors.newSingleThreadScheduledExecutor();
@@ -40,7 +40,7 @@ public class HexaManager {
 	private volatile long requestTime = 0;
 
 	private final Omni meterMap = new Omni();
-	private final HexaTerminal terminal;
+	private final ModbusTerminal terminal;
 	private SerialPort activePort;
 	private OutputStream outputStream;
 	private boolean isPhysicalDisconnected = false;
@@ -49,9 +49,9 @@ public class HexaManager {
 	private final ByteArrayOutputStream rxStreamBuffer = new ByteArrayOutputStream();
 
 	private int currentRequestAddress = 0x0000;
-	private int currentSlaveId = 1; // 💡 타임아웃 발생 시 안전한 DB 저장을 위한 슬레이브 ID 백업 필드
+	private int currentSlaveId = 1;
 
-	private boolean isRawTesting = false; // 현재 수신된 패킷이 Hex 테스트인지
+	private boolean isRawHex = false; // 현재 수신된 패킷이 Hex 테스트인지
 
 	private String connectedPort;
 
@@ -67,7 +67,7 @@ public class HexaManager {
 	// 송신 요청 담을 큐
 	private final Queue<byte[]> requestQueue = new LinkedList<>();
 
-	public HexaManager(HexaTerminal terminal) {
+	public ModbusManager(ModbusTerminal terminal) {
 		this.terminal = terminal;
 	}
 
@@ -82,7 +82,12 @@ public class HexaManager {
 			throw new IllegalArgumentException("올바르지 않은 HEX 형식입니다.");
 		}
 
-		this.isRawTesting = true;
+		/* ----------- 전달받은 패킷 본문에서 뽑아쓰자 ----------- */
+		if (inputBytes.length >= 4) {
+			this.currentRequestAddress = ((inputBytes[2] & 0xFF) << 8) | (inputBytes[3] & 0xFF);
+		}
+
+		this.isRawHex = true;
 
 		byte[] packet;
 
@@ -137,7 +142,7 @@ public class HexaManager {
 		byte[] packet = requestQueue.poll();
 		if (packet == null) {
 			waitingResponse = false;
-			log.info("모든 큐 패킷 전송 완료.");
+			this.isRawHex = false;
 			return;
 		}
 
@@ -146,6 +151,7 @@ public class HexaManager {
 			sendBytes(packet);
 		} catch (Exception e) {
 			log.error("다음 패킷 전송 과정에서 에러 발생!!", e);
+			terminal.appendSystemLog("다음 패킷 전송 과정에서 에러 발생");
 			waitingResponse = false;
 			sendNextPacket();
 		}
@@ -178,13 +184,14 @@ public class HexaManager {
 			};
 
 			StringBuilder logMsg = new StringBuilder();
-			logMsg.append(String.format("시리얼 포트 연결 성공 (%s)\n", portName));
+			logMsg.append(String.format("\n시리얼 포트 연결 성공 (%s)\n", portName));
 			logMsg.append(String.format("   • 보드 레이트 (Baud Rate) : %d bps\n", baudRate));
 			logMsg.append(String.format("   • 데이터 비트 (Data Bits) : %d bit\n", dataBits));
 			logMsg.append(String.format("   • 스톱 비트   (Stop Bits) : %s\n",
 					(stopBits == SerialPort.ONE_POINT_FIVE_STOP_BITS ? "1.5" : String.valueOf(stopBits))));
 			logMsg.append(String.format("   • 패리티 비트 (Parity Bit) : %s\n", parityStr));
-			logMsg.append("--------------------------------------------------");
+			logMsg.append(
+					"----------------------------------------------------------------------------------------------------");
 
 			terminal.appendSystemLog(logMsg.toString());
 
@@ -203,9 +210,9 @@ public class HexaManager {
 			terminal.resetAllMeterTable();
 
 			StringBuilder disconnectLogMsg = new StringBuilder();
-
 			disconnectLogMsg.append(String.format("\n%s 포트 연결 해제!", this.connectedPort));
-			disconnectLogMsg.append("\n--------------------------------------------------");
+			disconnectLogMsg.append(
+					"\n----------------------------------------------------------------------------------------------------");
 
 			terminal.appendSystemLog(disconnectLogMsg.toString());
 		}
@@ -226,14 +233,15 @@ public class HexaManager {
 		this.txDelayMs = (int) (txDelay);
 
 		StringBuilder communicationControl = new StringBuilder();
-		communicationControl.append("통신 제어 환경 설정 변경 완료\n");
+		communicationControl.append("\n통신 제어 환경 설정 변경 완료\n");
 		communicationControl
 				.append(String.format("   • 기본 장치 번호 (Slave ID)  : %d (0x%02X)\n", this.comSlaveId, this.comSlaveId));
 		communicationControl.append(String.format("   • 스캔 주기 (Scan Rate) : %d ms\n", scanRate));
-		communicationControl.append(String.format("   • 타임아웃   (Timeout)      : %d ms\n", this.TIMEOUT_MS));
+		communicationControl.append(String.format("   • 타임아웃   (Timeout)    : %d ms\n", this.TIMEOUT_MS));
 		communicationControl.append(String.format("   • 엔디안      (Endian)     : %s\n", defaultEndian));
 		communicationControl.append(String.format("   • 송신 지연  (Tx Delay)   : %d ms\n", this.txDelayMs));
-		communicationControl.append("--------------------------------------------------");
+		communicationControl.append(
+				"----------------------------------------------------------------------------------------------------");
 
 		log.info("\n{}", communicationControl.toString());
 		terminal.appendSystemLog(communicationControl.toString());
@@ -249,17 +257,18 @@ public class HexaManager {
 		rxStreamBuffer.reset();
 
 		currentSlaveId = bytes[0] & 0xFF;
+
 		int start = ((bytes[2] & 0xFF) << 8) | (bytes[3] & 0xFF);
 		currentRequestAddress = start;
 
-		if (requestQueue.isEmpty() && !isRawTesting) {
-			this.isRawTesting = false;
+		if (bytes.length >= 4) {
+			this.currentRequestAddress = ((bytes[2] & 0xFF) << 8) | (bytes[3] & 0xFF);
 		}
 
 		waitingResponse = true;
 
 		timeoutTask = timeoutScheduler.schedule(() -> {
-			synchronized (HexaManager.this) {
+			synchronized (ModbusManager.this) {
 				if (!waitingResponse)
 					return;
 
@@ -271,8 +280,9 @@ public class HexaManager {
 				terminal.updateMeterValue(start, "-", "TIMEOUT");
 				terminal.appendTerminal("[RX] TIMEOUT (" + TIMEOUT_MS + "ms)");
 				String addressIntToHexStr = String.format("0x%04X", start);
-				terminal.appendSystemLog(String.format("[에러] 장치 번호 #%d - 주소 %s 장비 무응답 (타임아웃 %dms 경과)", currentSlaveId,
-						addressIntToHexStr, elapsedTime));
+				terminal.appendSystemLog(
+						String.format("[TIMEOUT] 장치 번호 #%d - 주소 %s 장비 무응답 (타임아웃 %dms 경과)\n선로 연결을 확인하세요.",
+								currentSlaveId, addressIntToHexStr, elapsedTime));
 
 				dao.insertErrorData(currentSlaveId, addressIntToHexStr, 1);
 
@@ -319,7 +329,7 @@ public class HexaManager {
 					int read = activePort.readBytes(data, size);
 
 					if (read > 0) {
-						synchronized (HexaManager.this) {
+						synchronized (ModbusManager.this) {
 							rxStreamBuffer.write(data, 0, read);
 							byte[] currentBuffer = rxStreamBuffer.toByteArray();
 							int expectedLength = getExpectedLength(currentBuffer);
@@ -393,7 +403,7 @@ public class HexaManager {
 			int functionCode = incomingData[1] & 0xFF;
 
 			// -----------------------------------------------------------------
-			// ✨ [교정 분기 1] 장비가 명시적으로 응답 거부(Modbus Exception)한 경우 처리
+			// 장비가 명시적으로 응답 거부(Modbus Exception)한 경우 처리
 			// -----------------------------------------------------------------
 			if ((functionCode & 0x80) != 0) {
 				int exceptionCode = incomingData[2] & 0xFF;
@@ -409,7 +419,7 @@ public class HexaManager {
 				terminal.appendSystemLog(String.format("[변경실패] 장치 #%d - 주소 %s 변경 거부 사유: %s (코드: 0x%02X)",
 						currentSlaveId, addressHexStr, errReason, exceptionCode));
 
-				this.isRawTesting = false;
+				this.isRawHex = false;
 				if (activePort != null && activePort.isOpen()) {
 					activePort.flushIOBuffers();
 				}
@@ -418,7 +428,7 @@ public class HexaManager {
 			}
 
 			// -----------------------------------------------------------------
-			// ✨ [교정 분기 2] FC 06 파라미터 값 덮어쓰기 성공 응답 가로채기
+			// 파라미터 값 덮어쓰기 성공 응답 가로채기
 			// -----------------------------------------------------------------
 			if (functionCode == 0x06) {
 				int confirmedAddress = ((incomingData[2] & 0xFF) << 8) | (incomingData[3] & 0xFF);
@@ -427,134 +437,21 @@ public class HexaManager {
 
 				log.info("[덮어쓰기 성공 확인] 장치:#{} 주소:{} -> 값:{} 변경 완료", currentSlaveId, confirmedAddrHex, confirmedValue);
 
-				// UI 동기화 및 성공 로그 출력
 				terminal.updateMeterValue(confirmedAddress, String.valueOf(confirmedValue), "정상");
 				terminal.appendSystemLog(
 						String.format("[변경성공] 장치 번호 #%d - 주소 %s 파라미터가 성공적으로 '%d'(으)로 덮어써졌습니다. (응답시간: %dms)",
 								currentSlaveId, confirmedAddrHex, confirmedValue, elapsedTime));
 
-				this.isRawTesting = false;
+				this.isRawHex = false;
 				if (activePort != null && activePort.isOpen()) {
 					activePort.flushIOBuffers();
 				}
-				timeoutScheduler.schedule(this::sendNextPacket, txDelayMs, TimeUnit.MILLISECONDS);
-				return;
-			}
-
-			// 만약 내가 직접 쏜 Raw HEX 패킷(FC 04 등)에 대한 응답이라면?
-			if (isRawTesting) {
-				log.info("수동 테스트(Raw HEX) 응답 파싱 시작.");
-
-				terminal.appendSystemLog(
-						String.format("[수동 성공] 장치 번호: #%d 수동 명령 응답 완료 (소요 시간: %dms)", currentSlaveId, elapsedTime));
-
-				StringBuilder rawDetails = new StringBuilder();
-				int byteCount = incomingData[2] & 0xFF;
-				int currentOffset = 3;
-				int registerAddress = startAddress;
-
-				while (currentOffset < 3 + byteCount) {
-					MeterInfo info = meterMap.get(registerAddress);
-
-					if (info == null) {
-						rawDetails.append(String.format("   • [0x%04X] 미등록 주소 (건너뜀)\n", registerAddress));
-						currentOffset += 2;
-						registerAddress += 1;
-						continue;
-					}
-
-					int dataSize = ByteConverter.getDataSize(info.getDataType());
-					EndianType activeEndian = defaultEndian != null ? defaultEndian : info.getEndianType();
-					Object activeValue = ByteConverter.convert(incomingData, currentOffset, info.getDataType(),
-							activeEndian);
-
-					rawDetails.append(String.format("   • %s (%s) [주소: 0x%04X, 매핑타입: %s]\n", info.getName(),
-							info.getUnit(), registerAddress, info.getDataType()));
-					rawDetails.append(String.format("     [현재 세팅 값] => (%s) : %s\n", activeEndian, activeValue));
-					rawDetails.append("     --------------------------------------------------\n");
-
-					if (dataSize == 4) {
-						Object intBig = ByteConverter.convert(incomingData, currentOffset, DataType.INT32,
-								EndianType.BIG);
-						Object intLittle = ByteConverter.convert(incomingData, currentOffset, DataType.INT32,
-								EndianType.LITTLE);
-						Object intWSwap = ByteConverter.convert(incomingData, currentOffset, DataType.INT32,
-								EndianType.WORD_SWAP);
-						Object fltBig = ByteConverter.convert(incomingData, currentOffset, DataType.FLOAT32,
-								EndianType.BIG);
-						Object fltLittle = ByteConverter.convert(incomingData, currentOffset, DataType.FLOAT32,
-								EndianType.LITTLE);
-						Object fltWSwap = ByteConverter.convert(incomingData, currentOffset, DataType.FLOAT32,
-								EndianType.WORD_SWAP);
-
-						rawDetails.append(
-								String.format("     └─  정수(INT32)   => BIG: %-10s | LITTLE: %-10s | W-SWAP: %s\n",
-										intBig, intLittle, intWSwap));
-						rawDetails.append(
-								String.format("     └─  실수(FLOAT32) => BIG: %-10s | LITTLE: %-10s | W-SWAP: %s\n",
-										fltBig, fltLittle, fltWSwap));
-					} else if (dataSize == 2) {
-						Object i16Big = ByteConverter.convert(incomingData, currentOffset, DataType.INT16,
-								EndianType.BIG);
-						Object i16Little = ByteConverter.convert(incomingData, currentOffset, DataType.INT16,
-								EndianType.LITTLE);
-						Object u16Big = ByteConverter.convert(incomingData, currentOffset, DataType.UINT16,
-								EndianType.BIG);
-						Object u16Little = ByteConverter.convert(incomingData, currentOffset, DataType.UINT16,
-								EndianType.LITTLE);
-
-						rawDetails.append(
-								String.format("     └─  정수(INT16)   => BIG: %-10s | LITTLE: %s\n", i16Big, i16Little));
-						rawDetails.append(
-								String.format("     └─  부호X(UINT16) => BIG: %-10s | LITTLE: %s\n", u16Big, u16Little));
-					} else if (dataSize == 8) {
-						Object dblBig = ByteConverter.convert(incomingData, currentOffset, DataType.DOUBLE64,
-								EndianType.BIG);
-						Object dblLittle = ByteConverter.convert(incomingData, currentOffset, DataType.DOUBLE64,
-								EndianType.LITTLE);
-
-						byte[] raw8Bytes = new byte[8];
-						System.arraycopy(incomingData, currentOffset, raw8Bytes, 0, 8);
-
-						java.nio.ByteBuffer bbBig = java.nio.ByteBuffer.wrap(raw8Bytes)
-								.order(java.nio.ByteOrder.BIG_ENDIAN);
-						long int64Big = bbBig.getLong();
-
-						byte[] reversed8 = new byte[8];
-						for (int i = 0; i < 8; i++)
-							reversed8[i] = raw8Bytes[7 - i];
-						java.nio.ByteBuffer bbLittle = java.nio.ByteBuffer.wrap(reversed8)
-								.order(java.nio.ByteOrder.BIG_ENDIAN);
-						long int64Little = bbLittle.getLong();
-
-						rawDetails.append(
-								String.format("     └─  실수(DOUBLE64) => BIG: %-20s | LITTLE: %s\n", dblBig, dblLittle));
-						rawDetails.append(String.format("     └─  정수(INT64/Long) => BIG: %-20d | LITTLE: %d\n",
-								int64Big, int64Little));
-					}
-
-					rawDetails.append("==================================================\n");
-					currentOffset += dataSize;
-					registerAddress += dataSize / 2;
-				}
-
-				if (rawDetails.length() == 0) {
-					rawDetails.append("   측정된 데이터가 없거나 분석할 수 없습니다.");
-				}
-
-				terminal.updateRawResponseArea(hex, rawDetails.toString());
-				isRawTesting = false;
-
-				if (activePort != null && activePort.isOpen()) {
-					activePort.flushIOBuffers();
-				}
-
 				timeoutScheduler.schedule(this::sendNextPacket, txDelayMs, TimeUnit.MILLISECONDS);
 				return;
 			}
 
 			// ------------------------------------------------------------
-			// 아래는 오직 [자동 검침 요청(FC 04)]일 때만 실행되는 기존 테이블 파싱 구역
+			// 💡 [통합 루프] 수동 헥사 검침과 일반 항목 검침 패킷 포인터 순회 통합
 			// ------------------------------------------------------------
 			StringBuilder valueStr = new StringBuilder();
 			int byteCount = incomingData[2] & 0xFF;
@@ -565,33 +462,56 @@ public class HexaManager {
 				MeterInfo info = meterMap.get(registerAddress);
 
 				if (info == null) {
-					valueStr.append(String.format("UNKNOWN [0x%04X]\n", registerAddress));
-					currentOffset += 4;
-					registerAddress += 2;
+					// 💡 맵에 정의되지 않은 주소라도 버퍼를 안전하게 탈출하도록 보정
+					if (!isRawHex) {
+						valueStr.append(String.format("UNKNOWN [0x%04X]\n", registerAddress));
+					}
+					// 주소를 알 수 없으므로 모드버스 기본 단위인 2바이트(1레지스터)씩 수동 전진
+					currentOffset += 2;
+					registerAddress += 1;
 					continue;
 				}
 
-				EndianType endian = defaultEndian != null ? defaultEndian : info.getEndianType();
-				Object value = ByteConverter.convert(incomingData, currentOffset, info.getDataType(), endian);
-
-				valueStr.append(value).append(info.getUnit()).append(" ");
 				int dataSize = ByteConverter.getDataSize(info.getDataType());
 
+				// 일반 정기 검침일 때만 문자열을 파싱하고 조립함
+				if (!isRawHex) {
+					EndianType endian = defaultEndian != null ? defaultEndian : info.getEndianType();
+
+					// 💡 버퍼 오버런 방지 가드: 남은 버퍼가 필요한 데이터 사이즈보다 충분할 때만 컨버팅
+					if (currentOffset + dataSize <= incomingData.length - 2) {
+						Object value = ByteConverter.convert(incomingData, currentOffset, info.getDataType(), endian);
+						valueStr.append(value).append(info.getUnit()).append(" ");
+					}
+				}
+
+				// 💡 [핵심] 데이터 사이즈에 맞게 정확하게 포인터를 이동시킵니다.
 				currentOffset += dataSize;
-				registerAddress += dataSize / 2;
+				registerAddress += (dataSize / 2); // 2바이트당 1개 레지스터 주소 증가 (8바이트면 주소 4개 전진)
 			}
 
-			String value = valueStr.toString().trim();
-			terminal.updateMeterValue(startAddress, value, "정상");
+			// ------------------------------------------------------------
+			// 💡 후처리 및 UI 통보 (수동 검침 vs 정기 검침 분기)
+			// ------------------------------------------------------------
+			if (isRawHex) {
+				log.info("수동 테스트(Raw HEX) 응답 파싱 완료 -> UI 전송");
+				terminal.appendSystemLog(
+						String.format("[RawHex 성공] 장치 번호: #%d 수동 명령 응답 완료 (소요 시간: %dms)", currentSlaveId, elapsedTime));
 
-			terminal.appendSystemLog(String.format("[성공] 장치 번호 #%d - 주소 %s 검침 완료 (%s) -> 소요 시간: %dms", currentSlaveId,
-					addressHexStr, value, elapsedTime));
+				terminal.updateRawResponseArea(hex);
+				this.isRawHex = false;
+			} else {
+				String value = valueStr.toString().trim();
+				terminal.updateMeterValue(startAddress, value, "정상");
+				terminal.appendSystemLog(String.format("[선택 항목] 장치 번호 #%d - 주소 %s 검침 완료 (%s) -> 소요 시간: %dms",
+						currentSlaveId, addressHexStr, value, elapsedTime));
+
+				isPacketComplete = true; // 다음 정기 패킷 스케줄링 트리거용 플래그
+			}
 
 			if (activePort != null && activePort.isOpen()) {
 				activePort.flushIOBuffers();
 			}
-
-			isPacketComplete = true;
 
 		} else {
 			// CRC 오류 처리 구역
@@ -613,9 +533,70 @@ public class HexaManager {
 			sendNextPacket();
 		}
 
-		if (isPacketComplete) {
+		// 정상 처리 완료 || 기다리는 신호 없을 때 -> tx Delay만큼 다음 패킷 전송
+		if (isPacketComplete || !waitingResponse) {
 			timeoutScheduler.schedule(this::sendNextPacket, txDelayMs, TimeUnit.MILLISECONDS);
 		}
+	}
+
+	// ============= Raw Hex 데이터 선택항목 디테일 =============
+	public String getSelectedValueDetail(byte[] d, String currentAddr) {
+		DataType dt = DataType.INT32;
+		int addressKey = Integer.parseInt(currentAddr.replace("0x", ""), 16);
+		dt = meterMap.get(addressKey).getDataType();
+		int size = ByteConverter.getDataSize(dt);
+
+		StringBuilder sb = new StringBuilder();
+
+		sb.append(String.format("  [ 항목 주소 : %s / 기준 사이즈: %d Byte ]\n", currentAddr, size));
+		sb.append(" ───────────────────────────────\n");
+
+		try {
+			if (size == 2) {
+				Object int16Big = ByteConverter.convert(d, 0, DataType.INT16, EndianType.BIG);
+				Object int16Lit = ByteConverter.convert(d, 0, DataType.INT16, EndianType.LITTLE);
+				Object uint16Big = ByteConverter.convert(d, 0, DataType.UINT16, EndianType.BIG);
+				Object uint16Lit = ByteConverter.convert(d, 0, DataType.UINT16, EndianType.LITTLE);
+
+				sb.append(String.format("   ▶ 부호 포함 기본 정수 (INT16)  -> BIG ENDIAN: %-10s | LITTLE ENDIAN: %s\n",
+						int16Big, int16Lit));
+				sb.append(String.format("   ▶ 부호 없는 양의 정수 (UINT16) -> BIG ENDIAN: %-10s | LITTLE ENDIAN: %s\n",
+						uint16Big, uint16Lit));
+				sb.append("   ※ 16비트 단일 레지스터 필드는 Swap 아키텍처 비대상 구역입니다.");
+			} else if (size == 4) {
+				Object int32Big = ByteConverter.convert(d, 0, DataType.INT32, EndianType.BIG);
+				Object int32Lit = ByteConverter.convert(d, 0, DataType.INT32, EndianType.LITTLE);
+				Object int32WSwap = ByteConverter.convert(d, 0, DataType.INT32, EndianType.WORD_SWAP);
+				Object int32BSwap = ByteConverter.convert(d, 0, DataType.INT32, EndianType.BYTE_SWAP);
+
+				Object floatBig = ByteConverter.convert(d, 0, DataType.FLOAT32, EndianType.BIG);
+				Object floatLit = ByteConverter.convert(d, 0, DataType.FLOAT32, EndianType.LITTLE);
+				Object floatWSwap = ByteConverter.convert(d, 0, DataType.FLOAT32, EndianType.WORD_SWAP);
+				Object floatBSwap = ByteConverter.convert(d, 0, DataType.FLOAT32, EndianType.BYTE_SWAP);
+
+				sb.append("  [ 32-Bit (INT32 정수형) ]\n");
+				sb.append(String.format("   • BIG ENDIAN    : %s\n", int32Big));
+				sb.append(String.format("   • LITTLE ENDIAN : %s\n", int32Lit));
+				sb.append(String.format("   • WORD SWAP   : %s\n", int32WSwap));
+				sb.append(String.format("   • BYTE SWAP     : %s\n\n", int32BSwap));
+
+				sb.append("  [ 32-Bit (FLOAT32 실수형) ]\n");
+				sb.append(String.format("   • BIG ENDIAN    : %.4f\n", (float) floatBig));
+				sb.append(String.format("   • LITTLE ENDIAN : %.4f\n", (float) floatLit));
+				sb.append(String.format("   • WORD SWAP   : %.4f\n", (float) floatWSwap));
+				sb.append(String.format("   • BYTE SWAP     : %.4f", (float) floatBSwap));
+			} else if (size == 8) {
+				Object doubleBig = ByteConverter.convert(d, 0, DataType.DOUBLE64, EndianType.BIG);
+				Object doubleLit = ByteConverter.convert(d, 0, DataType.DOUBLE64, EndianType.LITTLE);
+
+				sb.append("  [ 64-Bit(DOUBLE64) ]\n");
+				sb.append(String.format("   • BIG ENDIAN    : %.6f\n", (double) doubleBig));
+				sb.append(String.format("   • LITTLE ENDIAN : %.6f", (double) doubleLit));
+			}
+		} catch (Exception ex) {
+			sb.append("  공통 컨버터 해석 가공 처리 중 포맷 오류 발생.");
+		}
+		return sb.toString();
 	}
 
 	public List<MeterReading> getMeterHistory(int deviceId, String addressMap, int dateSelected) {

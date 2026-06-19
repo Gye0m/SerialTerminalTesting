@@ -1,6 +1,6 @@
-package com.DSK.ui;
+package com.DSK.ui.Modbus;
 
-import com.DSK.serial.HexaManager;
+import com.DSK.serial.ModbusManager;
 import com.fazecast.jSerialComm.SerialPort;
 
 import org.slf4j.Logger;
@@ -9,18 +9,18 @@ import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
 
-public class ConfigPanel extends JPanel {
+public class ModbusConfigPanel extends JPanel {
 	private static final long serialVersionUID = 1L;
-	private static final Logger log = LoggerFactory.getLogger(ConfigPanel.class);
+	private static final Logger log = LoggerFactory.getLogger(ModbusConfigPanel.class);
 
-	private final HexaTerminal terminal;
-	private final HexaManager serialManager;
+	private final ModbusTerminal terminal;
+	private final ModbusManager serialManager;
 
 	// --- [기존 물리 포트 컴포넌트] ---
 	private JComboBox<String> portCombo, baudCombo, parityCombo, stopCombo, dataCombo;
 
 	// 하드웨어 연결
-	private JButton connectBtn, chatRefreshBtn;
+	private JButton connectBtn;
 
 	// 프로토콜 스펙 제어
 	private JButton connectProtocolBtn;
@@ -29,7 +29,7 @@ public class ConfigPanel extends JPanel {
 	private JTextField scanRateField, timeoutField, txDelayField, slaveIdField;
 	private JComboBox<String> endianCombo;
 
-	public ConfigPanel(HexaTerminal terminal, HexaManager serialManager) {
+	public ModbusConfigPanel(ModbusTerminal terminal, ModbusManager serialManager) {
 		this.terminal = terminal;
 		this.serialManager = serialManager;
 
@@ -67,16 +67,17 @@ public class ConfigPanel extends JPanel {
 		leftPanel.add(createFormRow("Parity Bit:", parityCombo));
 		leftPanel.add(createFormRow("Stop Bits:", stopCombo));
 
-		// 좌측 하단 버튼 구역 (가로 배치)
-		JPanel leftBtnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
+		// 💡 [수정] 버튼을 컴포넌트들의 맨 하단으로 밀어버리기 위한 수직 Glue 추가
+		leftPanel.add(Box.createVerticalGlue());
+
+		// 💡 [수정] 좌측 버튼 패널을 가운데(CENTER) 정렬로 변경
+		JPanel leftBtnPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
 		leftBtnPanel.setMaximumSize(new Dimension(Short.MAX_VALUE, 30));
 		connectBtn = new JButton("포트 연결");
-		chatRefreshBtn = new JButton("선택 항목 해제");
 		leftBtnPanel.add(connectBtn);
-		leftBtnPanel.add(chatRefreshBtn);
 
-		leftPanel.add(Box.createVerticalStrut(10)); // 버튼 위쪽 간격 벌리기
 		leftPanel.add(leftBtnPanel);
+		leftPanel.add(Box.createVerticalStrut(5)); // 테두리와의 미세한 간격을 위한 하단 여백
 
 		// =========================================================================
 		// 2. 우측 패널: Modbus RTU 프로토콜 스펙 제어 (세로 정렬)
@@ -100,16 +101,21 @@ public class ConfigPanel extends JPanel {
 		rightPanel.add(createFormRow("TX Delay(ms)", txDelayField));
 		rightPanel.add(createFormRow("Slave ID", slaveIdField));
 
-		connectProtocolBtn = new JButton("통신 설정");
+		// 💡 [수정] 버튼을 컴포넌트들의 맨 하단으로 밀어버리기 위한 수직 Glue 추가
+		rightPanel.add(Box.createVerticalGlue());
 
-		rightPanel.add(connectProtocolBtn);
-		// 하단 밸런스를 맞추기 위한 여백용 빈 공간 채우기
-		rightPanel.add(Box.createVerticalStrut(40));
+		// 💡 [수정] 우측 버튼 패널도 동일하게 가운데(CENTER) 정렬로 정렬 패널 감싸기
+		JPanel rightBtnPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+		rightBtnPanel.setMaximumSize(new Dimension(Short.MAX_VALUE, 30));
+		connectProtocolBtn = new JButton("통신 설정");
+		rightBtnPanel.add(connectProtocolBtn);
+
+		rightPanel.add(rightBtnPanel);
+		rightPanel.add(Box.createVerticalStrut(5)); // 테두리와의 미세한 간격을 위한 하단 여백
 
 		// 이벤트 바인딩
 		connectBtn.addActionListener(e -> toggleConnection());
 		connectProtocolBtn.addActionListener(e -> toggleCommunicationSetting());
-		chatRefreshBtn.addActionListener(e -> terminal.resetAllMeterTable());
 
 		// 메인 패널에 최종 조립
 		add(leftPanel);
@@ -124,8 +130,6 @@ public class ConfigPanel extends JPanel {
 		}
 		int scanRate = Integer.parseInt(scanRateField.getText());
 		double timeOut = Double.parseDouble(timeoutField.getText());
-		// 0: 리틀 엔디안 (Little), 1: 빅 엔디안 (Big), 2: 워드 스왑 (Word Swap), 3:바이트 스왑 (Byte
-		// Swap)
 		int endian = (endianCombo.getSelectedIndex());
 		double txDelay = Double.parseDouble(txDelayField.getText());
 		int slaveId = Integer.parseInt(slaveIdField.getText());
@@ -136,19 +140,17 @@ public class ConfigPanel extends JPanel {
 	private JPanel createFormRow(String labelText, JComponent component) {
 		JPanel row = new JPanel();
 		row.setLayout(new BoxLayout(row, BoxLayout.X_AXIS));
-		// 가로로 최대 늘어나되, 행 높이는 28 픽셀로 고정하여 촘촘하게 배치
 		row.setMaximumSize(new Dimension(Short.MAX_VALUE, 28));
-		row.setBorder(BorderFactory.createEmptyBorder(2, 0, 2, 0)); // 위아래 미세 여백
+		row.setBorder(BorderFactory.createEmptyBorder(2, 0, 2, 0));
 
 		JLabel label = new JLabel(labelText);
-
 		label.setPreferredSize(new Dimension(90, 25));
 		label.setMinimumSize(new Dimension(90, 25));
 		label.setMaximumSize(new Dimension(90, 25));
 		label.setHorizontalAlignment(SwingConstants.RIGHT);
 
 		row.add(label);
-		row.add(Box.createHorizontalStrut(10)); // 레이블과 입력창 사이 간격 10px
+		row.add(Box.createHorizontalStrut(10));
 		row.add(component);
 
 		return row;
@@ -182,7 +184,6 @@ public class ConfigPanel extends JPanel {
 		int stopBits = (stopCombo.getSelectedIndex() == 1) ? SerialPort.TWO_STOP_BITS : SerialPort.ONE_STOP_BIT;
 		int parity = parityCombo.getSelectedIndex();
 
-		// =================== 옴니 스펙인지 확인 ===================
 		if (serialManager.validateCommunicationSpec(baudRate, dataBits, stopBits, parity)) {
 			if (serialManager.connectingPort(portName, baudRate, dataBits, stopBits, parity)) {
 				log.info("Port connected: {}, {}, {}, {}, {}", portName, baudRate, dataBits, stopBits, parity);
@@ -207,9 +208,7 @@ public class ConfigPanel extends JPanel {
 		stopCombo.setEnabled(!connected);
 	}
 
-	// 터미널쪽에 통신제어 설정 보내는 getter
 	public int getSlaveId() {
-		int slaveId = Integer.parseInt(slaveIdField.getText());
-		return slaveId;
+		return Integer.parseInt(slaveIdField.getText());
 	}
 }

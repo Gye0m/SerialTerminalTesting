@@ -6,8 +6,8 @@ import java.util.Map;
 
 import com.DSK.model.dto.common.MeterAddressMap;
 import com.DSK.model.dto.common.MeterInfo; // 공통으로 분리한 MeterInfo 임포트
-import com.DSK.serial.converter.DataType;
-import com.DSK.serial.converter.EndianType;
+import com.DSK.serial.constant.DataType;
+import com.DSK.serial.constant.EndianType;
 
 public class Wizit implements MeterAddressMap {
 

@@ -29,10 +29,10 @@ import com.DSK.model.dto.MeterReading;
 public class OpenHistoryDialog {
     
     private final JFrame parent;
-    private final HexaManager serialManager;
+    private final ModbusManager serialManager;
     private JDialog dialog;
 
-    public OpenHistoryDialog(JFrame parent, HexaManager serialManager) {
+    public OpenHistoryDialog(JFrame parent, ModbusManager serialManager) {
         this.parent = parent;
         this.serialManager = serialManager;
         

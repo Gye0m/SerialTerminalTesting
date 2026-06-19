@@ -1,4 +1,4 @@
-package com.DSK.serial.converter;
+package com.DSK.serial.constant;
 
 // 데이터 타입 
 public enum DataType {

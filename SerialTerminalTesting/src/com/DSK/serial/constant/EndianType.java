@@ -1,4 +1,4 @@
-package com.DSK.serial.converter;
+package com.DSK.serial.constant;
 
 // 엔디안 타입
 public enum EndianType {

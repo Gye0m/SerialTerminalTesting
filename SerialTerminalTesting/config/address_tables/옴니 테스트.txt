@@ -1,0 +1,23 @@
+[ {
+  "selected" : true,
+  "address" : 6,
+  "slaveId" : 1,
+  "name" : "[전기] 송전 유효 전력",
+  "functionCode" : "READ_INPUT_REGISTERS",
+  "dataType" : "INT32",
+  "endianType" : "LITTLE_ENDIAN",
+  "unit" : "W",
+  "scale" : 1.0,
+  "itemName" : "[전기] 송전 유효 전력"
+}, {
+  "selected" : true,
+  "address" : 12,
+  "slaveId" : 1,
+  "name" : "[전기] 수전 지상 무효 전력",
+  "functionCode" : "READ_INPUT_REGISTERS",
+  "dataType" : "INT32",
+  "endianType" : "LITTLE_ENDIAN",
+  "unit" : "Var",
+  "scale" : 1.0,
+  "itemName" : "[전기] 수전 지상 무효 전력"
+} ]

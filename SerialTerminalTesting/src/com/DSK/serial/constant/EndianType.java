@@ -1,9 +1,8 @@
 package com.DSK.serial.constant;
 
-// 엔디안 타입
 public enum EndianType {
-	LITTLE, // 0: DCBA
-	BIG, // 1: ABCD
-	WORD_SWAP, // 2: CDAB
-	BYTE_SWAP // 3: BADC
+	LITTLE_ENDIAN, 
+	BIG_ENDIAN, 
+	LITTLE_ENDIAN_BYTE_SWAP,
+	BIG_ENDIAN_BYTE_SWAP,
 }

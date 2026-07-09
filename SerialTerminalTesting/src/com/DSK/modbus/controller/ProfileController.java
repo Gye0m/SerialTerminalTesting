@@ -52,11 +52,52 @@ public class ProfileController {
 	}
 
 	public void saveProfileAs() {
-		String name = JOptionPane.showInputDialog(terminal, "새 주소 맵 이름을 입력하세요:", currentProfileName);
-		if (name == null || name.trim().isEmpty())
+		String targetName = currentProfileName + "_복사본";
+
+		int option = JOptionPane.showConfirmDialog(terminal, "'" + targetName + "'(으)로 다른 이름으로 저장하시겠습니까?", "다른 이름으로 저장",
+				JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+
+		if (option == JOptionPane.YES_OPTION) {
+			executeSave(targetName);
+		} else
+			return;
+	}
+
+	public void changeProfileName() {
+		if (currentProfileName == null || currentProfileName.trim().isEmpty()) {
+			JOptionPane.showMessageDialog(terminal, "저장된 프로필이 없습니다. 먼저 저장해 주세요.");
+			return;
+		}
+
+		String newName = (String) JOptionPane.showInputDialog(terminal, "변경할 파일 이름을 입력하세요.", "파일 이름 변경",
+				JOptionPane.PLAIN_MESSAGE, null, null, currentProfileName);
+
+		if (newName == null || newName.trim().isEmpty())
+			return;
+		newName = newName.trim();
+
+		if (newName.equals(currentProfileName))
 			return;
 
-		executeSave(name.trim());
+		if (newName.matches(".*[\\\\/:*?\"<>|].*")) {
+			JOptionPane.showMessageDialog(terminal, "파일명에 사용할 수 없는 문자가 포함되어 있습니다.", "입력 오류",
+					JOptionPane.WARNING_MESSAGE);
+			return;
+		}
+
+		// 실제 파일 이름 변경
+		if (fileManager.renameProfile(currentProfileName, newName)) {
+			this.currentProfileName = newName;
+			terminal.refreshMapDropDown();
+
+			if (terminal.getMapDropDown() != null) {
+				terminal.getMapDropDown().setSelectedItem(newName);
+			}
+			JOptionPane.showMessageDialog(terminal, "프로필 이름이 '" + newName + "'(으)로 변경되었습니다.");
+		} else {
+			JOptionPane.showMessageDialog(terminal, "이름 변경에 실패했습니다. 동일한 이름이 이미 존재하거나 파일 접근이 제한되었습니다.", "오류",
+					JOptionPane.ERROR_MESSAGE);
+		}
 	}
 
 	// 📦 디스크 쓰기 처리를 담당하는 내부 공통 메소드
@@ -123,9 +164,9 @@ public class ProfileController {
 		}
 	}
 
-	public void deleteProfile(String selectedProfile) {
+	public boolean deleteProfile(String selectedProfile) {
 		if (selectedProfile == null)
-			return;
+			return false;
 
 		int res = JOptionPane.showConfirmDialog(terminal, selectedProfile + "를 삭제할까요?", "삭제",
 				JOptionPane.YES_NO_OPTION);
@@ -139,10 +180,15 @@ public class ProfileController {
 				terminal.refreshMapDropDown();
 				meterModel.setRowCount(0);
 				rowIndex.clear();
+				JOptionPane.showMessageDialog(this.terminal, "\"" + selectedProfile + "\" 맵 테이블을 삭제하였습니다.");
+
+				return true;
 			} else {
 				JOptionPane.showMessageDialog(terminal, "파일 삭제에 실패했습니다.");
+				return false;
 			}
-		}
+		} else
+			return false;
 	}
 
 	public void createNewProfile() {

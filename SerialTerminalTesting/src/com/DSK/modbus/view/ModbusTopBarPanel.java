@@ -318,7 +318,7 @@ public class ModbusTopBarPanel extends JPanel {
 		mapFileGroup.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(groupBorderColor),
 				"파일 관리", TitledBorder.LEFT, TitledBorder.TOP, groupTitleFont));
 
-		String[] mapActions = { "저장", "다른 이름으로 저장", "새 파일 생성", "파일 내보내기" };
+		String[] mapActions = { "저장", "다른 이름으로 저장", "새 파일 생성", "파일 내보내기", "파일명 변경" };
 		mapFileCombo = new JComboBox<>(mapActions);
 		mapFileCombo.setBackground(Color.WHITE);
 		mapFileCombo.setFont(new Font("맑은 고딕", Font.PLAIN, 12));

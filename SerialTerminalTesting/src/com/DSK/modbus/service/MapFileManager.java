@@ -103,7 +103,32 @@ public class MapFileManager {
 		if (!path.toLowerCase().endsWith(".txt")) {
 			targetFile = new File(path + ".txt");
 		}
-
 		mapper.writerWithDefaultPrettyPrinter().writeValue(targetFile, dtoList);
+	}
+
+	// 7. 파일명 변경
+	public boolean renameProfile(String oldName, String newName) {
+		File oldFile = new File(configDir, oldName + ".txt");
+		File newFile = new File(configDir, newName + ".txt");
+
+		if (!oldFile.exists())
+			return false;
+		if (newFile.exists())
+			return false;
+
+		try {
+			java.nio.file.Files.move(oldFile.toPath(), newFile.toPath(), java.nio.file.StandardCopyOption.ATOMIC_MOVE);
+			return true;
+		} catch (Exception e) {
+			// ATOMIC_MOVE 미지원 파일 시스템 fallback
+			try {
+				java.nio.file.Files.move(oldFile.toPath(), newFile.toPath(),
+						java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+				return true;
+			} catch (Exception e2) {
+				e2.printStackTrace();
+				return false;
+			}
+		}
 	}
 }

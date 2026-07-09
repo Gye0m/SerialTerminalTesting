@@ -88,7 +88,8 @@ public class ModbusTerminal extends JFrame implements ModbusEventListener {
 	private final MeterRowIndex rowIndex = new MeterRowIndex();
 
 	private JButton clearSelectionBtn, selectAllBtn, addRowBtn;
-	private JButton btnSaveMap, btnImportMap, btnDeleteMap, btnNewMap, btnExportMap, btnDeleteSelected;
+	private JButton btnSaveMap, btnImportMap, btnDeleteMap, btnNewMap, btnExportMap, btnDeleteSelected,
+			btnChangeNameMap;
 	private JComboBox<String> mapDropDown;
 
 	private int nextPredictionAddr = 0;
@@ -194,7 +195,7 @@ public class ModbusTerminal extends JFrame implements ModbusEventListener {
 		JPanel mapManagementPanel = new JPanel();
 		mapManagementPanel.setLayout(new BoxLayout(mapManagementPanel, BoxLayout.Y_AXIS));
 		mapManagementPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(softBorderColor),
-				"검침 맵 테이블", TitledBorder.LEFT, TitledBorder.TOP, boldTitleFont));
+				"파일 선택", TitledBorder.LEFT, TitledBorder.TOP, boldTitleFont));
 		mapManagementPanel.setBackground(Color.WHITE);
 		mapManagementPanel.setMaximumSize(new Dimension(contentWidth, 55));
 
@@ -206,9 +207,9 @@ public class ModbusTerminal extends JFrame implements ModbusEventListener {
 		mapDropDown.setPreferredSize(new Dimension(comboWidth, 24));
 
 		btnDeleteMap = new JButton("삭제");
-		btnImportMap = new JButton("맵 가져오기");
-		btnImportMap.setPreferredSize(new Dimension(95, 24));
+		btnImportMap = new JButton("파일 가져오기");
 		btnDeleteMap.setPreferredSize(new Dimension(65, 24));
+		btnImportMap.setPreferredSize(new Dimension(100, 24));
 
 		for (JButton btn : new JButton[] { btnDeleteMap, btnImportMap }) {
 			btn.setFont(new Font("맑은 고딕", Font.PLAIN, 11));
@@ -474,6 +475,7 @@ public class ModbusTerminal extends JFrame implements ModbusEventListener {
 		btnSaveMap = new JButton("저장");
 		btnNewMap = new JButton("새 파일");
 		btnExportMap = new JButton("파일 내보내기");
+		btnChangeNameMap = new JButton("파일명 변경");
 
 		add(topBarPanel, BorderLayout.NORTH);
 
@@ -599,15 +601,19 @@ public class ModbusTerminal extends JFrame implements ModbusEventListener {
 		});
 		btnSaveMap.addActionListener(e -> profileController.saveProfile());
 		btnDeleteMap.addActionListener(e -> {
-			profileController.deleteProfile((String) mapDropDown.getSelectedItem());
-			refreshMapDropDown();
-			clearErrorHighlights();
+			boolean deleted = profileController.deleteProfile((String) mapDropDown.getSelectedItem());
+			if (deleted) {
+				refreshMapDropDown();
+				clearErrorHighlights();
+			}
+			// NO 또는 실패 → 아무것도 안 함 → 현재 테이블 유지
 		});
 		btnImportMap.addActionListener(e -> {
 			profileController.importProfileFromDisk();
 			clearErrorHighlights();
 		});
 		btnExportMap.addActionListener(e -> profileController.exportProfileFromTable());
+		btnChangeNameMap.addActionListener(e -> profileController.changeProfileName()); // TODO: 이름 바꾸기
 		mapDropDown.addActionListener(e -> {
 			String selected = (String) mapDropDown.getSelectedItem();
 			// ============ 맵 파일 불러오기 ============ 
@@ -646,6 +652,12 @@ public class ModbusTerminal extends JFrame implements ModbusEventListener {
 				break;
 			case 3: // 파일 내보내기
 				btnExportMap.doClick();
+				isFileManageChange[0] = true;
+				combo.setSelectedIndex(0);
+				isFileManageChange[0] = false;
+				break;
+			case 4: // 파일명 변경
+				btnChangeNameMap.doClick();
 				isFileManageChange[0] = true;
 				combo.setSelectedIndex(0);
 				isFileManageChange[0] = false;
@@ -816,7 +828,9 @@ public class ModbusTerminal extends JFrame implements ModbusEventListener {
 		logPanel.getChkDemoCrc()
 				.addActionListener(e -> serialManager.setSimulateCrcError(logPanel.getChkDemoCrc().isSelected()));
 		logPanel.getChkDemoException().addActionListener(
-				e -> serialManager.setSimulateException(logPanel.getChkDemoException().isSelected())); // =========================================================================
+				e -> serialManager.setSimulateException(logPanel.getChkDemoException().isSelected()));
+
+		// =========================================================================
 		// TableModelListener – 셀 편집 DTO 동기화
 		// =========================================================================
 		meterModel.addTableModelListener(e -> {
@@ -1120,7 +1134,7 @@ public class ModbusTerminal extends JFrame implements ModbusEventListener {
 			meterModel.setValueAt(value, row, column);
 		log.info("칼럼 {} 일괄 변경 완료 – 적용값: {}, 대상 행: {}", column, value, rowCount);
 		appendSystemLog(new LogDto("SYSTEM",
-				String.format("%s – 적용값: {}, 대상 행개수: {}", getBulkEditTitle(column), value, rowCount)));
+				String.format("%s – 적용값: %s, 대상 행개수: %d", getBulkEditTitle(column), value, rowCount)));
 	}
 
 	private void promptAndSaveProfileAs() {
@@ -1158,13 +1172,46 @@ public class ModbusTerminal extends JFrame implements ModbusEventListener {
 			JOptionPane.showMessageDialog(this, "활성 개방 상태인 컴포트 대상이 확인되지 않습니다.");
 			return;
 		}
-		if (!enqueueSelectedMeters()) {
+		for (int row = 0; row < meterModel.getRowCount(); row++) {
+			meterModel.setValueAt("-", row, 8); // Value 초기화
+			meterModel.setValueAt("대기", row, 10); // State 초기화
+		}
+		errorRowSet.clear();
+		meterTable.repaint();
+
+		serialManager.clearAllErrorStatus();
+
+		if (!enqueueSelectedMetersDirectly()) {
 			JOptionPane.showMessageDialog(this, "검침 항목을 최소 한 개 이상 선택하세요.");
 			return;
 		}
-		resetAllMeterTable(); //TODO
-		serialManager.clearAllErrorStatus();
-		serialManager.startSend();
+		new Thread(serialManager::startSend, "manual-poll-send").start();
+	}
+
+	private boolean enqueueSelectedMetersDirectly() {
+		boolean hasSelection = false;
+		int enqueueCount = 0;
+		for (int row = 0; row < meterTable.getRowCount(); row++) {
+			Boolean checked = (Boolean) meterModel.getValueAt(row, 1);
+			if (!Boolean.TRUE.equals(checked))
+				continue;
+			hasSelection = true;
+			MeterRowDto info = (MeterRowDto) meterModel.getValueAt(row, 12);
+			if (info == null)
+				continue;
+
+			PendingRequest request = serialManager.buildRequest(info);
+			if (request == null) {
+				meterModel.setValueAt("오류", row, 10);
+				continue;
+			}
+			serialManager.enqueue(request);
+			enqueueCount++;
+			meterModel.setValueAt("요청중", row, 10); // EDT에서 직접 → 즉시 반영
+		}
+		if (enqueueCount > 0)
+			rowsPerCycle = enqueueCount;
+		return hasSelection;
 	}
 
 	// =========================================================================

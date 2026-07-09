@@ -23,8 +23,6 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextPane;
 import javax.swing.SwingUtilities;
 import javax.swing.text.BadLocationException;
-import javax.swing.text.DefaultHighlighter;
-import javax.swing.text.Highlighter;
 
 import com.DSK.modbus.model.ErrorMarkerDto;
 import com.DSK.modbus.model.LogDto;
@@ -102,7 +100,7 @@ public class ModbusLogPanel extends JPanel {
 		Dimension rightBtnSize = new Dimension(160, 80);
 		sendSelectedOnceBtn = buildRightBtn("체크 항목 검침", rightBtnSize, boldFont, true);
 		viewHistoryBtn = buildRightBtn("오류 이력 조회", rightBtnSize, boldFont, true);
-		sendSelectedOnceBtnShared = buildRightBtn("체크 항목", rightBtnSize, boldFont, true);
+		sendSelectedOnceBtnShared = buildRightBtn("체크 항목 검침", rightBtnSize, boldFont, true);
 		viewHistoryBtnShared = buildRightBtn("오류 이력 조회", rightBtnSize, boldFont, true);
 		sendSelectedOnceBtn.addPropertyChangeListener("enabled",
 				evt -> sendSelectedOnceBtnShared.setEnabled((Boolean) evt.getNewValue()));
@@ -428,21 +426,21 @@ public class ModbusLogPanel extends JPanel {
 		systemLogArea.setCaretPosition(index);
 	}
 
-	public void highlightKeyword(String keyword) {
-		String text = systemLogArea.getText();
-		int index = text.indexOf(keyword);
-		if (index < 0)
-			return;
-
-		Highlighter highlighter = systemLogArea.getHighlighter();
-		highlighter.removeAllHighlights();
-
-		try {
-			highlighter.addHighlight(index, index + keyword.length(),
-					new DefaultHighlighter.DefaultHighlightPainter(Color.YELLOW));
-		} catch (BadLocationException e) {
-			e.printStackTrace();
-		}
-		systemLogArea.setCaretPosition(index);
-	}
+	//	public void highlightKeyword(String keyword) {
+	//		String text = systemLogArea.getText();
+	//		int index = text.indexOf(keyword);
+	//		if (index < 0)
+	//			return;
+	//
+	//		Highlighter highlighter = systemLogArea.getHighlighter();
+	//		highlighter.removeAllHighlights();
+	//
+	//		try {
+	//			highlighter.addHighlight(index, index + keyword.length(),
+	//					new DefaultHighlighter.DefaultHighlightPainter(Color.YELLOW));
+	//		} catch (BadLocationException e) {
+	//			e.printStackTrace();
+	//		}
+	//		systemLogArea.setCaretPosition(index);
+	//	}
 }

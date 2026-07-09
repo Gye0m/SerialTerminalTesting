@@ -1,5 +1,5 @@
 [ {
-  "selected" : false,
+  "selected" : true,
   "address" : 0,
   "slaveId" : 1,
   "name" : "[전기] 수전 적산 유효 전력량",
@@ -8,9 +8,10 @@
   "endianType" : "LITTLE_ENDIAN",
   "unit" : "Wh",
   "scale" : 1.0,
+  "hexAddress" : true,
   "itemName" : "[전기] 수전 적산 유효 전력량"
 }, {
-  "selected" : false,
+  "selected" : true,
   "address" : 2,
   "slaveId" : 1,
   "name" : "[전기] 송전 적산 유효 전력량",
@@ -19,9 +20,10 @@
   "endianType" : "LITTLE_ENDIAN",
   "unit" : "Wh",
   "scale" : 1.0,
+  "hexAddress" : true,
   "itemName" : "[전기] 송전 적산 유효 전력량"
 }, {
-  "selected" : false,
+  "selected" : true,
   "address" : 4,
   "slaveId" : 1,
   "name" : "[전기] 수전 유효 전력",
@@ -30,9 +32,10 @@
   "endianType" : "LITTLE_ENDIAN",
   "unit" : "W",
   "scale" : 1.0,
+  "hexAddress" : true,
   "itemName" : "[전기] 수전 유효 전력"
 }, {
-  "selected" : false,
+  "selected" : true,
   "address" : 6,
   "slaveId" : 1,
   "name" : "[전기] 송전 유효 전력",
@@ -41,9 +44,10 @@
   "endianType" : "LITTLE_ENDIAN",
   "unit" : "W",
   "scale" : 1.0,
+  "hexAddress" : true,
   "itemName" : "[전기] 송전 유효 전력"
 }, {
-  "selected" : false,
+  "selected" : true,
   "address" : 8,
   "slaveId" : 1,
   "name" : "[전기] 수전 적산 지상 무효 전력량",
@@ -52,9 +56,10 @@
   "endianType" : "LITTLE_ENDIAN",
   "unit" : "Varh",
   "scale" : 1.0,
+  "hexAddress" : true,
   "itemName" : "[전기] 수전 적산 지상 무효 전력량"
 }, {
-  "selected" : false,
+  "selected" : true,
   "address" : 10,
   "slaveId" : 1,
   "name" : "[전기] 수전 적산 진상 무효 전력량",
@@ -63,9 +68,10 @@
   "endianType" : "LITTLE_ENDIAN",
   "unit" : "Varh",
   "scale" : 1.0,
+  "hexAddress" : true,
   "itemName" : "[전기] 수전 적산 진상 무효 전력량"
 }, {
-  "selected" : false,
+  "selected" : true,
   "address" : 12,
   "slaveId" : 1,
   "name" : "[전기] 수전 지상 무효 전력",
@@ -74,9 +80,10 @@
   "endianType" : "LITTLE_ENDIAN",
   "unit" : "Var",
   "scale" : 1.0,
+  "hexAddress" : true,
   "itemName" : "[전기] 수전 지상 무효 전력"
 }, {
-  "selected" : false,
+  "selected" : true,
   "address" : 14,
   "slaveId" : 1,
   "name" : "[전기] 수전 진상 무효 전력",
@@ -85,9 +92,10 @@
   "endianType" : "LITTLE_ENDIAN",
   "unit" : "Var",
   "scale" : 1.0,
+  "hexAddress" : true,
   "itemName" : "[전기] 수전 진상 무효 전력"
 }, {
-  "selected" : false,
+  "selected" : true,
   "address" : 16,
   "slaveId" : 1,
   "name" : "[전기] 송전 적산 지상 무효 전력량",
@@ -96,9 +104,10 @@
   "endianType" : "LITTLE_ENDIAN",
   "unit" : "Varh",
   "scale" : 1.0,
+  "hexAddress" : true,
   "itemName" : "[전기] 송전 적산 지상 무효 전력량"
 }, {
-  "selected" : false,
+  "selected" : true,
   "address" : 18,
   "slaveId" : 1,
   "name" : "[전기] 송전 적산 진상 무효 전력량",
@@ -107,9 +116,10 @@
   "endianType" : "LITTLE_ENDIAN",
   "unit" : "Varh",
   "scale" : 1.0,
+  "hexAddress" : true,
   "itemName" : "[전기] 송전 적산 진상 무효 전력량"
 }, {
-  "selected" : false,
+  "selected" : true,
   "address" : 20,
   "slaveId" : 1,
   "name" : "[전기] 송전 지상 무효 전력",
@@ -118,9 +128,10 @@
   "endianType" : "LITTLE_ENDIAN",
   "unit" : "Var",
   "scale" : 1.0,
+  "hexAddress" : true,
   "itemName" : "[전기] 송전 지상 무효 전력"
 }, {
-  "selected" : false,
+  "selected" : true,
   "address" : 22,
   "slaveId" : 1,
   "name" : "[전기] 송전 진상 무효 전력",
@@ -129,9 +140,10 @@
   "endianType" : "LITTLE_ENDIAN",
   "unit" : "Var",
   "scale" : 1.0,
+  "hexAddress" : true,
   "itemName" : "[전기] 송전 진상 무효 전력"
 }, {
-  "selected" : false,
+  "selected" : true,
   "address" : 24,
   "slaveId" : 1,
   "name" : "[전기] 현재 Voltage 1상",
@@ -140,9 +152,10 @@
   "endianType" : "LITTLE_ENDIAN",
   "unit" : "mV",
   "scale" : 1.0,
+  "hexAddress" : true,
   "itemName" : "[전기] 현재 Voltage 1상"
 }, {
-  "selected" : false,
+  "selected" : true,
   "address" : 26,
   "slaveId" : 1,
   "name" : "[전기] 현재 Voltage 2상",
@@ -151,9 +164,10 @@
   "endianType" : "LITTLE_ENDIAN",
   "unit" : "mV",
   "scale" : 1.0,
+  "hexAddress" : true,
   "itemName" : "[전기] 현재 Voltage 2상"
 }, {
-  "selected" : false,
+  "selected" : true,
   "address" : 28,
   "slaveId" : 1,
   "name" : "[전기] 현재 Voltage 3상",
@@ -162,9 +176,10 @@
   "endianType" : "LITTLE_ENDIAN",
   "unit" : "mV",
   "scale" : 1.0,
+  "hexAddress" : true,
   "itemName" : "[전기] 현재 Voltage 3상"
 }, {
-  "selected" : false,
+  "selected" : true,
   "address" : 30,
   "slaveId" : 1,
   "name" : "[전기] 현재 Current 1상",
@@ -173,9 +188,10 @@
   "endianType" : "LITTLE_ENDIAN",
   "unit" : "mA",
   "scale" : 1.0,
+  "hexAddress" : true,
   "itemName" : "[전기] 현재 Current 1상"
 }, {
-  "selected" : false,
+  "selected" : true,
   "address" : 32,
   "slaveId" : 1,
   "name" : "[전기] 현재 Current 2상",
@@ -184,9 +200,10 @@
   "endianType" : "LITTLE_ENDIAN",
   "unit" : "mA",
   "scale" : 1.0,
+  "hexAddress" : true,
   "itemName" : "[전기] 현재 Current 2상"
 }, {
-  "selected" : false,
+  "selected" : true,
   "address" : 34,
   "slaveId" : 1,
   "name" : "[전기] 현재 Current 3상",
@@ -195,9 +212,10 @@
   "endianType" : "LITTLE_ENDIAN",
   "unit" : "mA",
   "scale" : 1.0,
+  "hexAddress" : true,
   "itemName" : "[전기] 현재 Current 3상"
 }, {
-  "selected" : false,
+  "selected" : true,
   "address" : 36,
   "slaveId" : 1,
   "name" : "[전기] 현재 Phase 1상 (CosØ: 역률1)",
@@ -205,10 +223,11 @@
   "dataType" : "INT32",
   "endianType" : "LITTLE_ENDIAN",
   "unit" : "0.001",
-  "scale" : 1.0,
+  "scale" : 0.001,
+  "hexAddress" : true,
   "itemName" : "[전기] 현재 Phase 1상 (CosØ: 역률1)"
 }, {
-  "selected" : false,
+  "selected" : true,
   "address" : 38,
   "slaveId" : 1,
   "name" : "[전기] 현재 Phase 2상 (CosØ: 역률2)",
@@ -216,10 +235,11 @@
   "dataType" : "INT32",
   "endianType" : "LITTLE_ENDIAN",
   "unit" : "0.001",
-  "scale" : 1.0,
+  "scale" : 0.001,
+  "hexAddress" : true,
   "itemName" : "[전기] 현재 Phase 2상 (CosØ: 역률2)"
 }, {
-  "selected" : false,
+  "selected" : true,
   "address" : 40,
   "slaveId" : 1,
   "name" : "[전기] 현재 Phase 3상 (CosØ: 역률3)",
@@ -227,21 +247,23 @@
   "dataType" : "INT32",
   "endianType" : "LITTLE_ENDIAN",
   "unit" : "0.001",
-  "scale" : 1.0,
+  "scale" : 0.001,
+  "hexAddress" : true,
   "itemName" : "[전기] 현재 Phase 3상 (CosØ: 역률3)"
 }, {
-  "selected" : false,
+  "selected" : true,
   "address" : 42,
   "slaveId" : 1,
   "name" : "[전기] 현재주파수",
   "functionCode" : "READ_INPUT_REGISTERS",
   "dataType" : "INT32",
   "endianType" : "LITTLE_ENDIAN",
-  "unit" : "0.1 Hz",
-  "scale" : 1.0,
+  "unit" : "Hz",
+  "scale" : 0.1,
+  "hexAddress" : true,
   "itemName" : "[전기] 현재주파수"
 }, {
-  "selected" : false,
+  "selected" : true,
   "address" : 44,
   "slaveId" : 1,
   "name" : "[전기] 현재 Power Relay (0:Off /Others:On)",
@@ -250,9 +272,10 @@
   "endianType" : "LITTLE_ENDIAN",
   "unit" : "Off/On",
   "scale" : 1.0,
+  "hexAddress" : true,
   "itemName" : "[전기] 현재 Power Relay (0:Off /Others:On)"
 }, {
-  "selected" : false,
+  "selected" : true,
   "address" : 46,
   "slaveId" : 1,
   "name" : "[수도] 적산 검침 량",
@@ -261,9 +284,10 @@
   "endianType" : "LITTLE_ENDIAN",
   "unit" : "m3",
   "scale" : 1.0,
+  "hexAddress" : true,
   "itemName" : "[수도] 적산 검침 량"
 }, {
-  "selected" : false,
+  "selected" : true,
   "address" : 48,
   "slaveId" : 1,
   "name" : "[수도] 순시치",
@@ -272,9 +296,10 @@
   "endianType" : "LITTLE_ENDIAN",
   "unit" : "m3/h",
   "scale" : 1.0,
+  "hexAddress" : true,
   "itemName" : "[수도] 순시치"
 }, {
-  "selected" : false,
+  "selected" : true,
   "address" : 50,
   "slaveId" : 1,
   "name" : "[온수] 적산 검침 량",
@@ -283,9 +308,10 @@
   "endianType" : "LITTLE_ENDIAN",
   "unit" : "m3",
   "scale" : 1.0,
+  "hexAddress" : true,
   "itemName" : "[온수] 적산 검침 량"
 }, {
-  "selected" : false,
+  "selected" : true,
   "address" : 52,
   "slaveId" : 1,
   "name" : "[온수] 순시치",
@@ -294,9 +320,10 @@
   "endianType" : "LITTLE_ENDIAN",
   "unit" : "m3/h",
   "scale" : 1.0,
+  "hexAddress" : true,
   "itemName" : "[온수] 순시치"
 }, {
-  "selected" : false,
+  "selected" : true,
   "address" : 54,
   "slaveId" : 1,
   "name" : "[가스] 적산 검침 량",
@@ -305,9 +332,10 @@
   "endianType" : "LITTLE_ENDIAN",
   "unit" : "m3",
   "scale" : 1.0,
+  "hexAddress" : true,
   "itemName" : "[가스] 적산 검침 량"
 }, {
-  "selected" : false,
+  "selected" : true,
   "address" : 56,
   "slaveId" : 1,
   "name" : "[가스] 순시치",
@@ -316,9 +344,10 @@
   "endianType" : "LITTLE_ENDIAN",
   "unit" : "m3/h",
   "scale" : 1.0,
+  "hexAddress" : true,
   "itemName" : "[가스] 순시치"
 }, {
-  "selected" : false,
+  "selected" : true,
   "address" : 58,
   "slaveId" : 1,
   "name" : "[난방] 적산 검침 량",
@@ -327,9 +356,10 @@
   "endianType" : "LITTLE_ENDIAN",
   "unit" : "MWh",
   "scale" : 1.0,
+  "hexAddress" : true,
   "itemName" : "[난방] 적산 검침 량"
 }, {
-  "selected" : false,
+  "selected" : true,
   "address" : 60,
   "slaveId" : 1,
   "name" : "[난방] 순시치",
@@ -338,9 +368,10 @@
   "endianType" : "LITTLE_ENDIAN",
   "unit" : "kW",
   "scale" : 1.0,
+  "hexAddress" : true,
   "itemName" : "[난방] 순시치"
 }, {
-  "selected" : false,
+  "selected" : true,
   "address" : 62,
   "slaveId" : 1,
   "name" : "[난방] 유량 누적 량",
@@ -349,9 +380,10 @@
   "endianType" : "LITTLE_ENDIAN",
   "unit" : "m3",
   "scale" : 1.0,
+  "hexAddress" : true,
   "itemName" : "[난방] 유량 누적 량"
 }, {
-  "selected" : false,
+  "selected" : true,
   "address" : 64,
   "slaveId" : 1,
   "name" : "[난방] 유량 순시치",
@@ -360,9 +392,10 @@
   "endianType" : "LITTLE_ENDIAN",
   "unit" : "m3/h",
   "scale" : 1.0,
+  "hexAddress" : true,
   "itemName" : "[난방] 유량 순시치"
 }, {
-  "selected" : false,
+  "selected" : true,
   "address" : 66,
   "slaveId" : 1,
   "name" : "[난방] 송류온도+환류온도",
@@ -371,9 +404,10 @@
   "endianType" : "LITTLE_ENDIAN",
   "unit" : "℃",
   "scale" : 1.0,
+  "hexAddress" : true,
   "itemName" : "[난방] 송류온도+환류온도"
 }, {
-  "selected" : false,
+  "selected" : true,
   "address" : 68,
   "slaveId" : 1,
   "name" : "[기타] 적산 검침 량",
@@ -382,9 +416,10 @@
   "endianType" : "LITTLE_ENDIAN",
   "unit" : "MWh",
   "scale" : 1.0,
+  "hexAddress" : true,
   "itemName" : "[기타] 적산 검침 량"
 }, {
-  "selected" : false,
+  "selected" : true,
   "address" : 70,
   "slaveId" : 1,
   "name" : "[기타] 순시치",
@@ -393,9 +428,10 @@
   "endianType" : "LITTLE_ENDIAN",
   "unit" : "kW",
   "scale" : 1.0,
+  "hexAddress" : true,
   "itemName" : "[기타] 순시치"
 }, {
-  "selected" : false,
+  "selected" : true,
   "address" : 72,
   "slaveId" : 1,
   "name" : "[기타] 유량 누적 량",
@@ -404,9 +440,10 @@
   "endianType" : "LITTLE_ENDIAN",
   "unit" : "m3",
   "scale" : 1.0,
+  "hexAddress" : true,
   "itemName" : "[기타] 유량 누적 량"
 }, {
-  "selected" : false,
+  "selected" : true,
   "address" : 74,
   "slaveId" : 1,
   "name" : "[기타] 유량 순시치",
@@ -415,9 +452,10 @@
   "endianType" : "LITTLE_ENDIAN",
   "unit" : "m3/h",
   "scale" : 1.0,
+  "hexAddress" : true,
   "itemName" : "[기타] 유량 순시치"
 }, {
-  "selected" : false,
+  "selected" : true,
   "address" : 76,
   "slaveId" : 1,
   "name" : "[기타] 송류온도+환류온도",
@@ -426,9 +464,10 @@
   "endianType" : "LITTLE_ENDIAN",
   "unit" : "℃",
   "scale" : 1.0,
+  "hexAddress" : true,
   "itemName" : "[기타] 송류온도+환류온도"
 }, {
-  "selected" : false,
+  "selected" : true,
   "address" : 78,
   "slaveId" : 1,
   "name" : "[산업용열량계] 적산 검침 량",
@@ -437,9 +476,10 @@
   "endianType" : "LITTLE_ENDIAN",
   "unit" : "MWh",
   "scale" : 1.0,
+  "hexAddress" : true,
   "itemName" : "[산업용열량계] 적산 검침 량"
 }, {
-  "selected" : false,
+  "selected" : true,
   "address" : 82,
   "slaveId" : 1,
   "name" : "[산업용열량계] 순시치",
@@ -448,9 +488,10 @@
   "endianType" : "LITTLE_ENDIAN",
   "unit" : "kW",
   "scale" : 1.0,
+  "hexAddress" : true,
   "itemName" : "[산업용열량계] 순시치"
 }, {
-  "selected" : false,
+  "selected" : true,
   "address" : 84,
   "slaveId" : 1,
   "name" : "[산업용열량계] 유량 누적 량",
@@ -459,9 +500,10 @@
   "endianType" : "LITTLE_ENDIAN",
   "unit" : "m3",
   "scale" : 1.0,
+  "hexAddress" : true,
   "itemName" : "[산업용열량계] 유량 누적 량"
 }, {
-  "selected" : false,
+  "selected" : true,
   "address" : 88,
   "slaveId" : 1,
   "name" : "[산업용열량계] 유량 순시치",
@@ -470,9 +512,10 @@
   "endianType" : "LITTLE_ENDIAN",
   "unit" : "m3/h",
   "scale" : 1.0,
+  "hexAddress" : true,
   "itemName" : "[산업용열량계] 유량 순시치"
 }, {
-  "selected" : false,
+  "selected" : true,
   "address" : 90,
   "slaveId" : 1,
   "name" : "[산업용열량계] 온도(송/환)",
@@ -481,5 +524,6 @@
   "endianType" : "LITTLE_ENDIAN",
   "unit" : "℃",
   "scale" : 1.0,
+  "hexAddress" : true,
   "itemName" : "[산업용열량계] 온도(송/환)"
 } ]

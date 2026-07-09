@@ -268,7 +268,7 @@ public class ModbusAutoPollingPanel extends JPanel {
 		lblContinuousFail = new JLabel("오류: / 단선: 0회");
 		lblLastErr = new JLabel("정보: ");
 		lblErrAddr = new JLabel("주소: ");
-		lblErrTime = new JLabel("발생 시간: ");
+		lblErrTime = new JLabel("마지막 발생: ");
 
 		for (JLabel lbl : new JLabel[] { lblTotalReq, lblSuccessResp, lblContinuousFail, lblLastErr, lblErrAddr,
 				lblErrTime }) {
@@ -302,7 +302,7 @@ public class ModbusAutoPollingPanel extends JPanel {
 
 		JLabel lblCycleWaiting = new JLabel("완료 사이클 대기중입니다.", SwingConstants.CENTER);
 
-		lblCycleWaiting.setFont(new Font("맑은 고딕", Font.BOLD, 13));
+		lblCycleWaiting.setFont(new Font("맑은 고딕", Font.BOLD, 11));
 		lblCycleWaiting.setForeground(Color.GRAY);
 
 		cycleWaitingPanel.add(lblCycleWaiting, BorderLayout.CENTER);
@@ -340,7 +340,7 @@ public class ModbusAutoPollingPanel extends JPanel {
 		noErrorPanel.setBackground(Color.WHITE);
 
 		JLabel lblNoError = new JLabel("오류 항목이 없습니다.", SwingConstants.CENTER);
-		lblNoError.setFont(new Font("맑은 고딕", Font.BOLD, 13));
+		lblNoError.setFont(new Font("맑은 고딕", Font.BOLD, 11));
 		lblNoError.setForeground(Color.GRAY);
 
 		noErrorPanel.add(lblNoError, BorderLayout.CENTER);
@@ -578,9 +578,9 @@ public class ModbusAutoPollingPanel extends JPanel {
 			setErrorInfoVisible(true);
 			lblLastErr.setText("정보: Slave " + worst.getSlaveId() + "   (누적 " + worst.getTotalErrCount() + "건)");
 			lblErrAddr.setText("주소: 0x" + String.format("%04X", worst.getAddress()));
-			//			lblErrTime.setText("발생 시간: " + worst.getLastErrTime());
+			//			lblErrTime.setText("마지막 발생: " + worst.getLastErrTime());
 			// "yyyy/MM/dd HH:mm:ss.SSS" -> 앞의 11글자를 제외하고 "HH:mm:ss.SSS"만 추출
-			lblErrTime.setText("발생 시간: " + worst.getLastErrTime().substring(11));
+			lblErrTime.setText("마지막 발생: " + worst.getLastErrTime().substring(11));
 		}
 	}
 
@@ -643,7 +643,7 @@ public class ModbusAutoPollingPanel extends JPanel {
 		lblContinuousFail.setText("오류: ");
 		lblLastErr.setText("정보: ");
 		lblErrAddr.setText("주소: ");
-		lblErrTime.setText("발생 시간: ");
+		lblErrTime.setText("마지막 발생: ");
 		lblErrRateVal.setText("");
 		lblAvgResponseTime.setText("");
 	}
